@@ -1,0 +1,29 @@
+useDynLib(mspatPPM, .registration = TRUE) 
+
+export("mLGCP")
+export("SettingCompGrid")
+export("plot_data")
+export("initiate_startValues")
+export("corfunc")
+export("ccf")
+export("ccf2")
+export("PV")
+export("post_ccf")
+export("post_ccf2")
+export("post_PV")
+export("BMM_meta")
+
+importFrom("spatstat.geom", "owin", "as.rectangle", "inside.owin", "im")
+importFrom("grDevices", "dev.off", "pdf", "colorRampPalette")
+importFrom("graphics", "par", "abline", "points", "text")
+importFrom("stats", "dgamma", "dnorm", "dunif", "fft", "pnorm", "rnorm", "runif")
+importFrom("stats", "median", "quantile", "rgamma", "sd", "var")
+importFrom("msm", "rtnorm")
+importFrom("RColorBrewer", "brewer.pal")
+importFrom("fields", "image.plot")
+importFrom("PLNmodels", "PLN")
+importFrom("SuppDists", "rinvGauss")
+importFrom("LearnBayes", "rigamma")
+
+
+

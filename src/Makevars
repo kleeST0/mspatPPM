@@ -1,0 +1,6 @@
+# The package "mspatPPMbl" depends on GSL (GNU Scientific Library). 
+
+PKG_LIBS=-L/usr/local/lib -lgsl -lgslcblas -lm
+
+
+

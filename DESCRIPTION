@@ -1,0 +1,13 @@
+Package: mspatPPM
+Type: Package
+Title: Multivariate Spatial Point Process Models for Image Data Analysis
+Version: 1.0
+Date: 2025-2-5
+Authors@R: c(person(given = c("Kyu", "Ha"), family = "Lee", role = c("aut", "cre"), email = "klee15239@gmail.com"),
+            person(given = "Brent", family = "Coull", role = "aut"),
+            person(given = "Suman", family = "Majumder", role = "aut"),
+            person(given = "Jacqueline", family = "Starr", role = "aut"))
+Description: Multivariate Spatial Point Process Models for Image Data Analysis. The package contains implementations of multivariate log-Gaussian Cox process models.
+License: GPL (>= 2)
+Depends: msm, spatstat.geom, RColorBrewer, fields, PLNmodels, SuppDists, LearnBayes, R (>= 3.5.0)
+LazyLoad: yes
