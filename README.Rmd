@@ -1,35 +1,13 @@
----
-output: github_document
----
+mspatPPM v1.0
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+"Multivariate Spatial Point Process Models for Image Data Analysis"
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
+February 15, 2025
 
-# kyuhalee
+License: AGPL-3
 
-<!-- badges: start -->
-<!-- badges: end -->
+Depends: msm, spatstat.geom, RColorBrewer, fields, PLNmodels, SuppDists, LearnBayes, R (>= 3.5.0)
 
-The goal of kyuhalee is to ...
+Author: Kyu Ha Lee, Brent Coull, Suman Majumder, Jacqueline Starr
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub.
+Maintainer: Kyu Ha Lee
