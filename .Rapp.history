@@ -1,0 +1,4 @@
+library(usethis)
+use_agpl3_license()
+use_readme_rmd()
+setwd("/Users/kyuhalee/Dropbox (Harvard University)/01_Research/111_R_package_spatPPM/GitHub/mspatPPM")

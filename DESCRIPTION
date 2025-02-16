@@ -2,7 +2,7 @@ Package: mspatPPM
 Type: Package
 Title: Multivariate Spatial Point Process Models for Image Data Analysis
 Version: 1.0
-Date: 2025-2-5
+Date: 2025-2-15
 Authors@R: c(person(given = c("Kyu", "Ha"), family = "Lee", role = c("aut", "cre"), email = "klee15239@gmail.com"),
             person(given = "Brent", family = "Coull", role = "aut"),
             person(given = "Suman", family = "Majumder", role = "aut"),
