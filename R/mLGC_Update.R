@@ -139,7 +139,7 @@ Update_GAM <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi,
 #########################
 ######     updating phi using RW-MH
 #########################
-Update_PHI <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C.e.base, sqrt.C.eigen, norm.gam, sqrt.C_gam, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi, u.phi, propVar.phi, accept.phi, n.PHI, n.nan.PHI)
+Update_PHI <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C.e.base, sqrt.C.eigen, norm.gam, sqrt.C_gam, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi, u.phi, propVar.phi, accept.phi, n.PHI, n.nan.PHI, corr_model = "exp", nu = NULL)
 {
     J <- length(phi)
     if(is.null(phi0))
@@ -184,10 +184,10 @@ Update_PHI <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi,
         
         if(theta.prop > l.phi & theta.prop < u.phi)
         {
-            C.e.base.prop <- corfunc(D.e.base, phi.prop)
-            sqrt.C.eigen.prop <-  sqrt(Re(fft(C.e.base.prop, TRUE)))
+            C.e.base.prop <- corfunc(D.e.base, phi.prop, model = corr_model, nu = nu[jj])
+            sqrt.C.eigen.prop <- safe_sqrt_eigen(C.e.base.prop)
             
-            if(sum(is.nan(sqrt.C.eigen.prop)) != 0)
+            if(sum(is.nan(sqrt.C.eigen.prop)) != 0 || sum(is.infinite(sqrt.C.eigen.prop)) != 0)
             {
                 nan_phi[jj] <- 1
                 logR <- -Inf
@@ -419,7 +419,7 @@ Update_GAM0 <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi
 #########################
 ######     updating phi0 -- common cor param
 #########################
-Update_PHI0 <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C0.e.base, sqrt.C0.eigen, norm.gam0, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi0, u.phi0, propVar.phi0, accept.phi0, n.PHI0, n.nan.PHI0)
+Update_PHI0 <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C0.e.base, sqrt.C0.eigen, norm.gam0, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi0, u.phi0, propVar.phi0, accept.phi0, n.PHI0, n.nan.PHI0, corr_model = "exp", nu0 = NULL)
 {
     J <- dim(alpha)[1]
     K <- dim(alpha)[2]
@@ -463,10 +463,10 @@ Update_PHI0 <- function(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi
         
         if(theta.prop > l.phi0 & theta.prop < u.phi0)
         {
-            C0.e.base.prop <- corfunc(D.e.base, phi0.prop)
-            sqrt.C0.eigen.prop <-  sqrt(Re(fft(C0.e.base.prop, TRUE)))
+            C0.e.base.prop <- corfunc(D.e.base, phi0.prop, model = corr_model, nu = nu0[kk])
+            sqrt.C0.eigen.prop <- safe_sqrt_eigen(C0.e.base.prop)
             
-            if(sum(is.nan(sqrt.C0.eigen.prop)) != 0)
+            if(sum(is.nan(sqrt.C0.eigen.prop)) != 0 || sum(is.infinite(sqrt.C0.eigen.prop)) != 0)
             {
                 nan_phi0[kk] <- 1
                 logR <- -Inf
@@ -853,7 +853,8 @@ Update_Lambda<- function(tauSq, a.lam, b.lam)
 
 
 
-Llam <- function(n.e, A, obs.ind, D.e.base, gamma, m, sigSq, phi, gamma0, phi0, alpha)
+Llam <- function(n.e, A, obs.ind, D.e.base, gamma, m, sigSq, phi,
+                 gamma0, phi0, alpha, corr_model = "exp", nu = NULL, nu0 = NULL)
 {
     J <- length(phi)
     if(is.null(phi0))
@@ -875,8 +876,8 @@ Llam <- function(n.e, A, obs.ind, D.e.base, gamma, m, sigSq, phi, gamma0, phi0, 
     
     for(jj in 1:J)
     {
-        C.e.base[[jj]] <- corfunc(D.e.base, phi[jj])
-        sqrt.C.eigen[[jj]] <-  sqrt(Re(fft(C.e.base[[jj]], TRUE)))
+        C.e.base[[jj]] <- corfunc(D.e.base, phi[jj], model = corr_model, nu = nu[jj])
+        sqrt.C.eigen[[jj]] <- safe_sqrt_eigen(C.e.base[[jj]])
         norm.gam[[jj]] <- fft(matrix(gamma[,jj], M.e, N.e))/sqrt(nC.e)
         sqrt.C_gam[[jj]] <- as.vector(Re(fft(sqrt.C.eigen[[jj]] * norm.gam[[jj]], TRUE)/sqrt(nC.e)))
     }
@@ -890,8 +891,8 @@ Llam <- function(n.e, A, obs.ind, D.e.base, gamma, m, sigSq, phi, gamma0, phi0, 
         
         for(kk in 1:K)
         {
-            C0.e.base[[kk]] <- corfunc(D.e.base, phi0[kk])
-            sqrt.C0.eigen[[kk]] <-  sqrt(Re(fft(C0.e.base[[kk]], TRUE)))
+            C0.e.base[[kk]] <- corfunc(D.e.base, phi0[kk], model = corr_model, nu = nu0[kk])
+            sqrt.C0.eigen[[kk]] <- safe_sqrt_eigen(C0.e.base[[kk]])
             norm.gam0[[kk]] <- fft(matrix(gamma0[,kk], M.e, N.e))/sqrt(nC.e)
             sqrt.C0_gam0[[kk]] <- as.vector(Re(fft(sqrt.C0.eigen[[kk]] * norm.gam0[[kk]], TRUE)/sqrt(nC.e)))
         }
@@ -966,7 +967,7 @@ Update_logPost <- function(n.e, A, obs.ind, obs.inx, Y.e, gamma, m, sigSq, phi, 
         pri.val <- pri.val + sum(dnorm(alpha, mean=0, sd=sqrt(sigSq.alp*tauSq), log=T))
         
         pri.val <- pri.val + sum(dgamma(tauSq, shape = 1, rate = lambdaSq/2, log = TRUE)) #final
-        pri.val <- pri.val + sum(dgamma(lambdaSq, shape = a.lam, rate = b.sig, log = TRUE)) #final
+        pri.val <- pri.val + sum(dgamma(lambdaSq, shape = a.lam, rate = b.lam, log = TRUE)) #final
         
         val <- val + sum(log(phi0))
     }
@@ -976,29 +977,54 @@ Update_logPost <- function(n.e, A, obs.ind, obs.inx, Y.e, gamma, m, sigSq, phi, 
 
 
 
-corfunc <- function(distance, param, model="exp")
+corfunc <- function(distance, param, model = "exp", nu = NULL)
 {
+    model <- match.arg(model, c("exp", "matern"))
+    phi <- param[1]
+
     if(model == "exp")
     {
-        phi <- param[1]
-        val <- exp(-abs(distance)/phi)
+        return(exp(-abs(distance) / phi))
     }
-    return(val)
+
+    if(model == "matern")
+    {
+        if(is.null(nu))
+        {
+            stop("For model = 'matern', nu must be provided.")
+        }
+
+        z <- abs(distance) / phi
+        val <- (2^(1 - nu)) / gamma(nu) * (z^nu) * besselK(z, nu)
+        val[z == 0] <- 1
+        val[is.nan(val)] <- 1
+        return(val)
+    }
 }
+
+safe_sqrt_eigen <- function(cbase)
+{
+    lam <- Re(fft(cbase, TRUE))
+    lam[is.nan(lam)] <- 0
+    lam[lam < 0] <- 0
+    sqrt(lam)
+}
+
 
 
 ## alpha1 = alpha[j, ]: a vector of length K
 ## alpha2 = alpha[j', ]: a vector of length K
 ## param.corfunc: a vector of length K (e.g. phi0 under exponential corr)
 
-ccf <- function(distance, alpha1, alpha2, param.corfunc, model = "exp")
+ccf <- function(distance, alpha1, alpha2, param.corfunc, model = "exp", nu = NULL)
 {
     K <- length(alpha1)
     
     num <- 0
     for(k in 1:K)
     {
-        num <- num + alpha1[k]*alpha2[k]*corfunc(distance, param.corfunc[k], model)
+        nu.k <- if(is.null(nu)) NULL else nu[k]
+        num <- num + alpha1[k]*alpha2[k]*corfunc(distance, param.corfunc[k], model = model, nu = nu.k)
     }
     den <- sqrt(sum(alpha1^2) * sum(alpha2^2))
     
@@ -1007,7 +1033,7 @@ ccf <- function(distance, alpha1, alpha2, param.corfunc, model = "exp")
         val <- rep(0, length(distance))
     }else
     {
-        val <- num/sqrt(sum(alpha1^2) * sum(alpha2^2))
+        val <- num/den
     }
     
     return(val)
@@ -1015,14 +1041,17 @@ ccf <- function(distance, alpha1, alpha2, param.corfunc, model = "exp")
 
 
 
-ccf2 <- function(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc, model = "exp")
+
+
+ccf2 <- function(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc, model = "exp", nu = NULL)
 {
     K <- length(alpha1)
     
     num <- 0
     for(k in 1:K)
     {
-        num <- num + alpha1[k]*alpha2[k]*corfunc(distance, param.corfunc[k], model)
+        nu.k <- if(is.null(nu)) NULL else nu[k]
+        num <- num + alpha1[k]*alpha2[k]*corfunc(distance, param.corfunc[k], model = model, nu = nu.k)
     }
     den <- sqrt((sum(alpha1^2) + sigSq1) * (sum(alpha2^2) + sigSq2))
     
@@ -1031,7 +1060,7 @@ ccf2 <- function(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc, model 
         val <- rep(0, length(distance))
     }else
     {
-        val <- num/sqrt((sum(alpha1^2) + sigSq1) * (sum(alpha2^2) + sigSq2))
+        val <- num/den
     }
     
     return(val)
@@ -1039,17 +1068,21 @@ ccf2 <- function(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc, model 
 
 
 
-PV <- function(distance, alpha_j, sigSq_j, param.corfunc_j, param.corfunc_0, model = "exp")
+PV <- function(distance, alpha_j, sigSq_j, param.corfunc_j, param.corfunc_0, model = "exp", nu_j = NULL, nu0 = NULL)
 {
     K <- length(alpha_j)
+
     num <- 0
-    for (k in 1:K) {
-        num <- num + alpha_j[k]^2 * corfunc(distance, param.corfunc_0[k], model)
+    for(k in 1:K)
+    {
+        nu.k <- if(is.null(nu0)) NULL else nu0[k]
+        num <- num + alpha_j[k]^2 *
+            corfunc(distance, param.corfunc_0[k], model = model, nu = nu.k)
     }
-    den <- num + sigSq_j * corfunc(distance, param.corfunc_j, model)
-    
-    val <- num/den
-    
+
+    den <- num + sigSq_j * corfunc(distance, param.corfunc_j, model = model, nu = nu_j)
+
+    val <- num / den
     return(val)
 }
 
@@ -1096,7 +1129,12 @@ post_ccf <- function(fit, distance_vec, p.ind=NULL)
             post <- NULL
             for(MM in p.ind)
             {
-                post <- c(post, ccf(distance_vec[rr], fit$alpha.p[type1.j,, MM], fit$alpha.p[type2.j,, MM], fit$phi0.p[MM,]))
+                post <- c(post, ccf(distance_vec[rr],
+                fit$alpha.p[type1.j,, MM],
+                fit$alpha.p[type2.j,, MM],
+                fit$phi0.p[MM,],
+                model = fit$corr_model,
+                nu = fit$nu0))
             }
             ccf.p[ii, ,rr] <- post
         }
@@ -1146,7 +1184,8 @@ post_ccf2 <- function(fit, distance_vec, p.ind=NULL)
             post <- NULL
             for(MM in p.ind)
             {
-                post <- c(post, ccf2(distance_vec[rr], fit$alpha.p[type1.j,, MM], fit$alpha.p[type2.j,, MM], fit$sigSq.p[MM,type1.j], fit$sigSq.p[MM,type2.j], fit$phi0.p[MM,]))
+                post <- c(post, ccf2(distance_vec[rr], fit$alpha.p[type1.j,, MM], fit$alpha.p[type2.j,, MM], fit$sigSq.p[MM,type1.j], fit$sigSq.p[MM,type2.j], fit$phi0.p[MM,], model = fit$corr_model,
+                    nu = fit$nu0))
             }
             ccf.p[ii, ,rr] <- post
         }
@@ -1178,7 +1217,14 @@ post_PV <- function(fit, distance_vec, p.ind = NULL)
         for (jj in 1:J) {
             post <- NULL
             for (MM in p.ind) {
-                post <- c(post, PV(distance_vec[rr], fit$alpha.p[jj,,MM], fit$sigSq.p[MM,jj], fit$phi.p[MM,jj], fit$phi0.p[MM,]))
+                post <- c(post, PV(distance_vec[rr],
+                fit$alpha.p[jj,,MM],
+                fit$sigSq.p[MM,jj],
+                fit$phi.p[MM,jj],
+                fit$phi0.p[MM,],
+                model = fit$corr_model,
+                nu_j = fit$nu[jj],
+                nu0 = fit$nu0))
             }
             pv.p[jj, , rr] <- post
         }

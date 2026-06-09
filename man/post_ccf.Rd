@@ -18,7 +18,7 @@ post_ccf2(fit, distance_vec, p.ind=NULL)
   \item{p.ind}{An optional vector specifying the indices of the posterior samples to be used. If \code{NULL} (default), the CCF is computed for all available posterior simulations.}
 }
 \details{
-The functions \code{post_ccf} and \code{post_ccf2} estimate the posterior distributions of the cross-correlation function (CCF) for spatial point patterns modeled using multivariate LGCPs. The CCF quantifies the interdependence between different types (or marks) of points as a function of spatial distance.
+The functions \code{post_ccf} and \code{post_ccf2} estimate the posterior distributions of the cross-correlation function (CCF) for spatial point patterns modeled using multivariate LGCPs. The CCF quantifies the interdependence between different types (or marks) of points as a function of spatial distance. The function automatically uses the correlation model and any fixed \enc{Matérn}{Matern} smoothness parameters stored in the fitted object.
 
 - \code{post_ccf}: Computes the posterior CCF using a direct estimation method based on posterior samples from the fitted model.
 - \code{post_ccf2}: Provides an alternative formulation for posterior CCF estimation.

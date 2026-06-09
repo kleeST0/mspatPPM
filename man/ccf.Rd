@@ -4,11 +4,12 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Cross-Correlation Function (CCF) Computation for Spatial Point Patterns}
 \description{
-The \code{ccf} and \code{ccf2} functions compute the CCF for multivariate spatial point pattern models under specified covariance models, such as the exponential correlation function.
+The \code{ccf} and \code{ccf2} functions compute the CCF for multivariate spatial point pattern models under specified covariance models. The supported correlation models are currently \code{"exp"} (exponential) and \code{"matern"} (\enc{Matérn}{Matern}).
 }
 \usage{
-ccf(distance, alpha1, alpha2, param.corfunc, model = "exp")
-ccf2(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc, model = "exp")
+ccf(distance, alpha1, alpha2, param.corfunc, model = "exp", nu = NULL)
+ccf2(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc,
+     model = "exp", nu = NULL)
 }
 \arguments{
   \item{distance}{A numeric vector specifying the spatial distances at which the cross-correlation function is to be evaluated.}
@@ -23,16 +24,21 @@ ccf2(distance, alpha1, alpha2, sigSq1, sigSq2, param.corfunc, model = "exp")
 
   \item{sigSq2}{A numeric value specifying the variance of the second process (used in \code{ccf2}).}
 
-  \item{model}{A character string specifying the form of the correlation function. The default is \code{"exp"} for the exponential correlation model.}
+  \item{model}{A character string specifying the covariance function model to use. Options include \code{"exp"} (default) for the exponential correlation function and \code{"matern"} for the \enc{Matérn}{Matern} correlation function.}
+  \item{nu}{Optional numeric vector of fixed \enc{Matérn}{Matern} smoothness parameters for the shared latent processes. Used only when \code{model = "matern"}.
+}
 }
 \details{
 The \code{ccf} function computes the cross-correlation function for spatial point processes by scaling the covariance using the \code{alpha1} and \code{alpha2} parameters. It assumes that the covariance structure is specified by a parametric model such as the exponential correlation model.
 
 The \code{ccf2} function extends \code{ccf} by incorporating variances (\code{sigSq1} and \code{sigSq2}) of the respective processes in the computation of the cross-correlation function.
 
-The supported correlation model is currently the \code{"exp"} (exponential) model, defined as:
-\deqn{\rho(d) = \exp(-d / \theta),}
-where \eqn{\theta} is the range parameter specified by \code{param.corfunc}, and \eqn{d} is the spatial distance.
+For \code{model = "exp"}, the correlation function is
+\eqn{\exp(-d/\phi)}. For \code{model = "matern"}, the correlation function is
+\deqn{
+\frac{2^{1-\nu}}{\Gamma(\nu)}\left(\frac{d}{\phi}\right)^\nu
+K_\nu\left(\frac{d}{\phi}\right).
+}
 }
 \value{
 Both functions return a numeric vector of the computed cross-correlation function values evaluated at the specified distances.

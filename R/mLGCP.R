@@ -1,4 +1,4 @@
-mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, model="exp")
+mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, corr_model = "exp", nu = NULL, nu0 = NULL)
 {
     #########
     ### Data
@@ -87,6 +87,32 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
         lambdaSq <- 0.01
     }
     
+    corr_model <- match.arg(corr_model, c("exp", "matern"))
+
+    if(corr_model == "exp")
+    {
+        if(is.null(nu)) nu <- rep(0.5, J)
+        if(K > 0 && is.null(nu0)) nu0 <- rep(0.5, K)
+        if(K == 0) nu0 <- NULL
+    }
+
+    if(corr_model == "matern")
+    {
+        if(is.null(nu) || length(nu) != J)
+        {
+            stop("For corr_model='matern', nu must be a vector of length J.")
+        }
+        if(K > 0)
+        {
+            if(is.null(nu0) || length(nu0) != K)
+            {
+                stop("For corr_model='matern' and K > 0, nu0 must be a vector of length K.")
+            }
+        } else {
+            nu0 <- NULL
+        }
+    }
+    
     #########
     ### Posterior samples
     
@@ -154,7 +180,7 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
     #########
     ### Initialize the intensity functions
     
-    res <- Llam(n.e, A, obs.ind, D.e.base, gamma, m, sigSq, phi, gamma0, phi0, alpha)
+    res <- Llam(n.e, A, obs.ind, D.e.base, gamma, m, sigSq, phi, gamma0, phi0, alpha, corr_model = corr_model, nu = nu, nu0 = nu0)
     
     C.e.base <- res$C.e.base
     sqrt.C.eigen <- res$sqrt.C.eigen
@@ -229,7 +255,7 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
         if(move == "PHI")
         {
             n.PHI <- n.PHI + 1
-            res <- Update_PHI(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C.e.base, sqrt.C.eigen, norm.gam, sqrt.C_gam, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi, u.phi, propVar.phi, accept.phi, n.PHI, n.nan.PHI)
+            res <- Update_PHI(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C.e.base, sqrt.C.eigen, norm.gam, sqrt.C_gam, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi, u.phi, propVar.phi, accept.phi, n.PHI, n.nan.PHI, corr_model = corr_model, nu = nu)
             
             phi <- res$phi
             C.e.base <- res$C.e.base
@@ -282,7 +308,7 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
         if(move == "PHI0")
         {
             n.PHI0 <- n.PHI0 + 1
-            res <- Update_PHI0(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C0.e.base, sqrt.C0.eigen, norm.gam0, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi0, u.phi0, propVar.phi0, accept.phi0, n.PHI0, n.nan.PHI0)
+            res <- Update_PHI0(n.e, A, obs.ind, obs.inx, D.e.base, gamma, m, sigSq, phi, gamma0, alpha, phi0, C0.e.base, sqrt.C0.eigen, norm.gam0, sqrt.C0_gam0, Y.e, aVec, norm.aVec, l.phi0, u.phi0, propVar.phi0, accept.phi0, n.PHI0, n.nan.PHI0, corr_model = corr_model, nu0 = nu0)
             
             phi0 <- res$phi0
             C0.e.base <- res$C0.e.base
@@ -395,7 +421,7 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
             DIC3 <- -4 * mean(loglh.p, na.rm=T) + 2 * sum(log(LH_ij.mean))
             
             
-            fit <- list(Lam.mean.all=Lam.mean.all, Lam.var.all=Lam.var.all, logLam.mean.all=logLam.mean.all, logLam.var.all=logLam.var.all, Lam.mean=Lam.mean, Lam.var=Lam.var, logLam.mean=logLam.mean, logLam.var=logLam.var, m.p=m.p, phi0.p=phi0.p, phi.p=phi.p, alpha.p = alpha.p, sigSq.p=sigSq.p, lambdaSq.p=lambdaSq.p, accept.alp=accept.alp/n.ALP, accept.gam=accept.gam/n.GAM, accept.gam0=accept.gam0/n.GAM0, accept.phi=accept.phi/n.PHI,accept.phi0=accept.phi0/n.PHI0, accept.m=accept.m/n.M, accept.sig=accept.sig/n.SIG, startValues=startValues, hyperParams=hyperParams, mcmcParams=mcmcParams, logpost.p=logpost.p, loglh.p=loglh.p, n.nan.PHI=n.nan.PHI, n.nan.PHI0=n.nan.PHI0, n.nan.GAM=n.nan.GAM, n.nan.GAM0=n.nan.GAM0, eps.gam=eps.gam, eps.gam0=eps.gam0, gamma.mean=gamma.mean, gamma0.mean=gamma0.mean, gamma.var=gamma.var, gamma0.var=gamma0.var, saveGamInx=saveGamInx, last=last, dat=dat, DIC=DIC3)
+            fit <- list(Lam.mean.all=Lam.mean.all, Lam.var.all=Lam.var.all, logLam.mean.all=logLam.mean.all, logLam.var.all=logLam.var.all, Lam.mean=Lam.mean, Lam.var=Lam.var, logLam.mean=logLam.mean, logLam.var=logLam.var, m.p=m.p, phi0.p=phi0.p, phi.p=phi.p, alpha.p = alpha.p, sigSq.p=sigSq.p, lambdaSq.p=lambdaSq.p, accept.alp=accept.alp/n.ALP, accept.gam=accept.gam/n.GAM, accept.gam0=accept.gam0/n.GAM0, accept.phi=accept.phi/n.PHI,accept.phi0=accept.phi0/n.PHI0, accept.m=accept.m/n.M, accept.sig=accept.sig/n.SIG, startValues=startValues, hyperParams=hyperParams, mcmcParams=mcmcParams, logpost.p=logpost.p, loglh.p=loglh.p, n.nan.PHI=n.nan.PHI, n.nan.PHI0=n.nan.PHI0, n.nan.GAM=n.nan.GAM, n.nan.GAM0=n.nan.GAM0, eps.gam=eps.gam, eps.gam0=eps.gam0, gamma.mean=gamma.mean, gamma0.mean=gamma0.mean, gamma.var=gamma.var, gamma0.var=gamma0.var, saveGamInx=saveGamInx, last=last, dat=dat, DIC=DIC3, corr_model = corr_model,nu = nu, nu0 = nu0)
             
             if(MM == numReps)
             {
@@ -403,6 +429,9 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
                 results$DIC <- DIC
                 results$DIC2 <- DIC2
                 results$DIC3 <- DIC3
+                results$corr_model <- corr_model
+                results$nu <- nu
+                results$nu0 <- nu0
                 
                 if(K > 0)
                 {
@@ -489,10 +518,10 @@ mLGCP <- function(data, K, hyperParams, startValues, mcmcParams, distance_vec, m
     
     if(K >0)
     {
-        list(Lam.mean.all=Lam.mean.all, Lam.var.all=Lam.var.all, logLam.mean.all=logLam.mean.all, logLam.var.all=logLam.var.all, Lam.mean=Lam.mean, Lam.var=Lam.var, logLam.mean=logLam.mean, logLam.var=logLam.var, m.p=m.p, phi0.p=phi0.p, phi.p=phi.p, alpha.p = alpha.p, sigSq.p=sigSq.p, lambdaSq.p=lambdaSq.p, accept.alp=accept.alp/n.ALP, accept.gam=accept.gam/n.GAM, accept.gam0=accept.gam0/n.GAM0, accept.phi=accept.phi/n.PHI,accept.phi0=accept.phi0/n.PHI0, accept.m=accept.m/n.M, accept.sig=accept.sig/n.SIG, startValues=startValues, hyperParams=hyperParams, mcmcParams=mcmcParams, logpost.p=logpost.p, loglh.p=loglh.p, n.nan.PHI=n.nan.PHI, n.nan.PHI0=n.nan.PHI0, n.nan.GAM=n.nan.GAM, n.nan.GAM0=n.nan.GAM0, eps.gam=eps.gam, eps.gam0=eps.gam0, gamma.mean=gamma.mean, gamma0.mean=gamma0.mean, gamma.var=gamma.var, gamma0.var=gamma0.var, saveGamInx=saveGamInx, last=last, dat=dat, DIC=DIC3, distance_vec=distance_vec, ccf.p=ccf.p,ccf2.p=ccf2.p, pv.p=pv.p, results=results)
+        list(Lam.mean.all=Lam.mean.all, Lam.var.all=Lam.var.all, logLam.mean.all=logLam.mean.all, logLam.var.all=logLam.var.all, Lam.mean=Lam.mean, Lam.var=Lam.var, logLam.mean=logLam.mean, logLam.var=logLam.var, m.p=m.p, phi0.p=phi0.p, phi.p=phi.p, alpha.p = alpha.p, sigSq.p=sigSq.p, lambdaSq.p=lambdaSq.p, accept.alp=accept.alp/n.ALP, accept.gam=accept.gam/n.GAM, accept.gam0=accept.gam0/n.GAM0, accept.phi=accept.phi/n.PHI,accept.phi0=accept.phi0/n.PHI0, accept.m=accept.m/n.M, accept.sig=accept.sig/n.SIG, startValues=startValues, hyperParams=hyperParams, mcmcParams=mcmcParams, logpost.p=logpost.p, loglh.p=loglh.p, n.nan.PHI=n.nan.PHI, n.nan.PHI0=n.nan.PHI0, n.nan.GAM=n.nan.GAM, n.nan.GAM0=n.nan.GAM0, eps.gam=eps.gam, eps.gam0=eps.gam0, gamma.mean=gamma.mean, gamma0.mean=gamma0.mean, gamma.var=gamma.var, gamma0.var=gamma0.var, saveGamInx=saveGamInx, last=last, dat=dat, DIC=DIC3, distance_vec=distance_vec, ccf.p=ccf.p,ccf2.p=ccf2.p, pv.p=pv.p, results=results, corr_model = corr_model,nu = nu, nu0 = nu0, gamma.p = gamma.p, gamma0.p = gamma0.p)
     }else
     {
-        list(Lam.mean.all=Lam.mean.all, Lam.var.all=Lam.var.all, logLam.mean.all=logLam.mean.all, logLam.var.all=logLam.var.all, Lam.mean=Lam.mean, Lam.var=Lam.var, logLam.mean=logLam.mean, logLam.var=logLam.var, m.p=m.p, phi0.p=phi0.p, phi.p=phi.p, alpha.p = alpha.p, sigSq.p=sigSq.p, lambdaSq.p=lambdaSq.p, accept.alp=accept.alp/n.ALP, accept.gam=accept.gam/n.GAM, accept.gam0=accept.gam0/n.GAM0, accept.phi=accept.phi/n.PHI,accept.phi0=accept.phi0/n.PHI0, accept.m=accept.m/n.M, accept.sig=accept.sig/n.SIG, startValues=startValues, hyperParams=hyperParams, mcmcParams=mcmcParams, logpost.p=logpost.p, loglh.p=loglh.p, n.nan.PHI=n.nan.PHI, n.nan.PHI0=n.nan.PHI0, n.nan.GAM=n.nan.GAM, n.nan.GAM0=n.nan.GAM0, eps.gam=eps.gam, eps.gam0=eps.gam0, gamma.mean=gamma.mean, gamma0.mean=gamma0.mean, gamma.var=gamma.var, gamma0.var=gamma0.var, saveGamInx=saveGamInx, last=last, dat=dat, DIC=DIC3, distance_vec=distance_vec, results=results)
+        list(Lam.mean.all=Lam.mean.all, Lam.var.all=Lam.var.all, logLam.mean.all=logLam.mean.all, logLam.var.all=logLam.var.all, Lam.mean=Lam.mean, Lam.var=Lam.var, logLam.mean=logLam.mean, logLam.var=logLam.var, m.p=m.p, phi0.p=phi0.p, phi.p=phi.p, alpha.p = alpha.p, sigSq.p=sigSq.p, lambdaSq.p=lambdaSq.p, accept.alp=accept.alp/n.ALP, accept.gam=accept.gam/n.GAM, accept.gam0=accept.gam0/n.GAM0, accept.phi=accept.phi/n.PHI,accept.phi0=accept.phi0/n.PHI0, accept.m=accept.m/n.M, accept.sig=accept.sig/n.SIG, startValues=startValues, hyperParams=hyperParams, mcmcParams=mcmcParams, logpost.p=logpost.p, loglh.p=loglh.p, n.nan.PHI=n.nan.PHI, n.nan.PHI0=n.nan.PHI0, n.nan.GAM=n.nan.GAM, n.nan.GAM0=n.nan.GAM0, eps.gam=eps.gam, eps.gam0=eps.gam0, gamma.mean=gamma.mean, gamma0.mean=gamma0.mean, gamma.var=gamma.var, gamma0.var=gamma0.var, saveGamInx=saveGamInx, last=last, dat=dat, DIC=DIC3, distance_vec=distance_vec, results=results, corr_model = corr_model,nu = nu, nu0=nu0, gamma.p = gamma.p, gamma0.p = gamma0.p)
     }
 
 }

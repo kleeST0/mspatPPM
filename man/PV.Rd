@@ -3,23 +3,26 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Proportion of Variance for Multivariate LGCP Models}
 \description{
-Calculates the proportion of variance (PV) for a given distance in a multivariate Log-Gaussian Cox Process (LGCP) model, using specified model parameters and covariance function settings.
+Calculates the proportion of variance (PV) for a given distance in a multivariate Log-Gaussian Cox Process (LGCP) model, using specified model parameters and covariance function settings. The supported correlation models are currently \code{"exp"} (exponential) and \code{"matern"} (\enc{Matérn}{Matern}).
 }
 \usage{
-PV(distance, alpha_j, sigSq_j, param.corfunc_j, param.corfunc_0, model = "exp") 
+PV(distance, alpha_j, sigSq_j, param.corfunc_j, param.corfunc_0,
+model = "exp", nu_j = NULL, nu0 = NULL)
 }
 \arguments{
-  \item{distance}{A numeric vector specifying the spatial distances at which the proportion of variance (PV) is to be evaluated.}
+\item{distance}{A numeric vector specifying the spatial distances at which the proportion of variance (PV) is to be evaluated.}
 
-  \item{alpha_j}{A numeric vector representing the variance scaling parameter for the latent Gaussian process associated with type j.}
+\item{alpha_j}{A numeric vector representing the variance scaling parameter for the latent Gaussian process associated with type j.}
 
-  \item{sigSq_j}{A numeric value representing the variance parameter for the Gaussian process associated with type j.}
+\item{sigSq_j}{A numeric value representing the variance parameter for the Gaussian process associated with type j.}
 
-  \item{param.corfunc_j}{A numeric vector of parameters for the correlation function of the latent Gaussian process for type j.}
+\item{param.corfunc_j}{A numeric vector of parameters for the correlation function of the latent Gaussian process for type j.}
 
-  \item{param.corfunc_0}{A numeric vector of parameters for the shared correlation function across all types.}
+\item{param.corfunc_0}{A numeric vector of parameters for the shared correlation function across all types.}
 
-  \item{model}{A character string specifying the covariance function model to use. Options include \code{"exp"} (default) for the exponential correlation function. Future implementations may include \code{"matern"}.}
+\item{model}{A character string specifying the covariance function model to use. Options include \code{"exp"} (default) for the exponential correlation function and \code{"matern"} for the Matérn correlation function.}
+\item{nu_j}{Fixed \enc{Matérn}{Matern} smoothness parameter for the taxon-specific latent process. Used only when \code{model = "matern"}.}
+\item{nu0}{Numeric vector of fixed \enc{Matérn}{Matern} smoothness parameters for the shared latent processes. Used only when \code{model = "matern"}.}
 }
 \details{
 The **proportion of variance (PV)** quantifies the relative contribution of the inter-type covariance to the total variance at a given distance. It is a key summary statistic in multivariate spatial point pattern analysis using LGCP models.
@@ -53,7 +56,7 @@ pv_values <- PV(distance, alpha_j, sigSq_j, param.corfunc_j, param.corfunc_0, mo
 
 # Plot the results
 plot(distance, pv_values, type = "l", main = "Proportion of Variance",
-     xlab = "Distance", ylab = "PV")
+xlab = "Distance", ylab = "PV")
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -16,7 +16,7 @@ post_PV(fit, distance_vec, p.ind = NULL)
   \item{p.ind}{An optional vector specifying the indices of the posterior samples to be used. If \code{NULL} (default), the CCF is computed for all available posterior simulations.}
 }
 \details{
-The function \code{post_PV} estimates the posterior distribution of the **proportion of variance (PV)** for multivariate LGCP models at specified distances. PV quantifies the relative contribution of inter-type variance to the total variance, providing insights into the spatial dependence structure of point patterns.
+The function \code{post_PV} estimates the posterior distribution of the **proportion of variance (PV)** for multivariate LGCP models at specified distances. PV quantifies the relative contribution of inter-type variance to the total variance, providing insights into the spatial dependence structure of point patterns. The function automatically uses the correlation model and any fixed \enc{Matérn}{Matern} smoothness parameters stored in the fitted object.
 
 The function uses the posterior samples of the fitted model parameters to compute PV values and summarizes them to provide posterior means and credible intervals.
 

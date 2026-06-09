@@ -1,4 +1,4 @@
-mspatPPM v1.0
+mspatPPM v1.1
 
 "Multivariate Spatial Point Process Models for Image Data Analysis"
 

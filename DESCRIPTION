@@ -1,8 +1,8 @@
 Package: mspatPPM
 Type: Package
 Title: Multivariate Spatial Point Process Models for Image Data Analysis
-Version: 1.0
-Date: 2025-2-15
+Version: 1.1
+Date: 2026-4-7
 Authors@R: c(person(given = c("Kyu", "Ha"), family = "Lee", role = c("aut", "cre"), email = "klee15239@gmail.com"),
             person(given = "Brent", family = "Coull", role = "aut"),
             person(given = "Suman", family = "Majumder", role = "aut"),
@@ -11,3 +11,6 @@ Description: Multivariate Spatial Point Process Models for Image Data Analysis. 
 License: AGPL-3
 Depends: msm, spatstat.geom, RColorBrewer, fields, PLNmodels, SuppDists, LearnBayes, R (>= 3.5.0)
 LazyLoad: yes
+Encoding: UTF-8
+
+
